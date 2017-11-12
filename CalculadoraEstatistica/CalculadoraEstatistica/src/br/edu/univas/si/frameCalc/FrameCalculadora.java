@@ -1,6 +1,7 @@
 package br.edu.univas.si.frameCalc;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -15,11 +16,12 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class FrameCalculadora extends JFrame{
 	
@@ -38,6 +40,8 @@ public class FrameCalculadora extends JFrame{
 	private JRadioButton radioButtonErro = null;
 	private JRadioButton radioButtonTamanho = null;
 	private ButtonGroup buttonGroupCalc = new ButtonGroup();
+	private JLabel labelResultTitle = null;
+	private JLabel labelResult = null;
 	
 	private GridBagConstraints gbcLabelCheckBoxErro = null;
 	private GridBagConstraints gbcRadioButtonErro = null; 
@@ -50,6 +54,8 @@ public class FrameCalculadora extends JFrame{
 	private GridBagConstraints gbcComboBoxConfiabilidade = null;
 	private GridBagConstraints gbcRadioButtonTamanho = null;
 	private GridBagConstraints gbcButtonCalcula = null;
+	private GridBagConstraints gbcLabelResultTitle = null;
+	private GridBagConstraints gbcLabelResult = null;
 	//constantes dos gridsBagConstraints
 	private final int X_LABEL_RADIO_BUTTON_ERRO = 0;
 	private final int Y_LABEL_RADIO_BUTTON_ERRO = 0;
@@ -73,6 +79,10 @@ public class FrameCalculadora extends JFrame{
 	private final int Y_COMBO_BOX_CONFIABILIDADE = 7;
 	private final int X_BUTTON_CALCULA = 0;
 	private final int Y_BUTTON_CALCULA = 8;
+	private final int X_LABEL_RESULT_TITLE = 0;
+	private final int Y_LABEL_RESULT_TITLE = 10;
+	private final int X_LABEL_RESULT = 0;
+	private final int Y_LABEL_RESULT = 11;
 	
 	public FrameCalculadora(){
 		super("Calculadora");
@@ -101,6 +111,10 @@ public class FrameCalculadora extends JFrame{
 		contentpane.add(getLabelConfiabilidade()   , getGbcLabelConfiabilidade());
 		contentpane.add(getComboBoxConfiabilidade(), getGbcComboBoxConfiabilidade());
 		contentpane.add(getButtonCalcula(), getGbcButtonCalcula());
+		
+		contentpane.add(getLabelTitleResult(),getGbcLabelTitleResult());
+		contentpane.add(getlabelResult(),getGbcResult());
+		
 	}
 	
 	private JLabel getLabelRadioButtonErro(){
@@ -115,6 +129,16 @@ public class FrameCalculadora extends JFrame{
 		if(radioButtonErro==null){
 			radioButtonErro = new JRadioButton();
 			buttonGroupCalc.add(radioButtonErro);
+			radioButtonErro.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if(radioButtonErro.isSelected()){
+						getLabelErroTamanho().setText("Tamanho da Amostra");
+						getLabelTitleResult().setText("Margem de Erro:");
+						getlabelResult().setText("");
+					}
+				}
+			});
 		}
 		return radioButtonErro;
 	}
@@ -132,6 +156,16 @@ public class FrameCalculadora extends JFrame{
 			radioButtonTamanho = new JRadioButton();
 			radioButtonTamanho.setSelected(true);
 			buttonGroupCalc.add(radioButtonTamanho);
+			radioButtonTamanho.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if(radioButtonTamanho.isSelected()){
+						getLabelErroTamanho().setText("Margem de erro (%)");
+						getLabelTitleResult().setText("Tamanho Necessário");
+						getlabelResult().setText("");
+					}					
+				}
+			});
 		}
 		return radioButtonTamanho;
 	}
@@ -202,6 +236,26 @@ public class FrameCalculadora extends JFrame{
 			});
 		}
 		return buttonCalcula;
+	}
+	
+	private JLabel getLabelTitleResult(){
+		if(labelResultTitle==null){
+			labelResultTitle = new JLabel("Tamanho Necessário: ");
+			labelResultTitle.setFont(new Font("Century",Font.BOLD,20));
+			labelResultTitle.setForeground(Color.BLUE);
+			labelResultTitle.setPreferredSize(new Dimension(250,50));
+		}
+		return labelResultTitle;
+	}
+	
+	private JLabel getlabelResult(){
+		if(labelResult==null){
+			labelResult = new JLabel("");
+			labelResult.setFont(new Font("Century",Font.BOLD,18));
+			labelResult.setForeground(Color.BLUE);
+			labelResult.setPreferredSize(new Dimension(220,50));
+		}
+		return labelResult;
 	}
 	
 	private GridBagConstraints getGbcLabelPopupacao() {
@@ -308,13 +362,31 @@ public class FrameCalculadora extends JFrame{
 		return gbcButtonCalcula;
 	}
 	
+	private GridBagConstraints getGbcLabelTitleResult(){
+		if(gbcLabelResultTitle== null){
+			gbcLabelResultTitle = new GridBagConstraints();
+			gbcLabelResultTitle.gridx = X_LABEL_RESULT_TITLE;
+			gbcLabelResultTitle.gridy = Y_LABEL_RESULT_TITLE;
+		}
+		return gbcLabelResultTitle;
+	}
+	
+	private GridBagConstraints getGbcResult(){
+		if(gbcLabelResult==null){
+			gbcLabelResult = new GridBagConstraints();
+			gbcLabelResult.gridx = X_LABEL_RESULT;
+			gbcLabelResult.gridy = Y_LABEL_RESULT;
+		}
+		return gbcLabelResult;
+	}
+	
 	private void buttonClicked(){
 		
-		//TODO implements... Fazer o calculo
 		float z = 0;
-		float populacao =  Float.valueOf((String) getSpnPopulacao().getValue()); 
-		float erro_tamanho =  (float) getSpnErroTamanho().getValue();
-		int result = 0;
+		double populacao =  Double.valueOf((String) getSpnPopulacao().getValue().toString()); 
+		double erro_ou_tamanho =  Double.valueOf(getSpnErroTamanho().getValue().toString());
+		double result = 0f;
+		float p = 0.5f;
 		
 		//Pega valor Z
 		if(getComboBoxConfiabilidade().getSelectedItem().equals("90")){
@@ -328,9 +400,19 @@ public class FrameCalculadora extends JFrame{
 		} 		
 		
 		if(getRadioButtonErro().isSelected()){
-			
+			//CALCULA ERRO DA AMOSTRA
 		}else{
-			
+			//CALCULA TAMANHO DA AMOSTRA
+			//result = (populacao * (z*z) * p *(1-p)) / ((populacao-1) * ((erro_ou_tamanho*erro_ou_tamanho) * (z*z)*p*(1-p))) ; 
+			result = ( ((z*z)*erro_ou_tamanho*(1-p)) / (erro_ou_tamanho * erro_ou_tamanho) );
 		}
+		
+		getlabelResult().setText(String.valueOf(result)); //coloca resultado na calculadora
+		
+		System.out.println("Populacao: "+populacao);
+		System.out.println("Erro: "+ erro_ou_tamanho);
+		System.out.println("Z: "+ z);
+		
+		System.out.println("Resultado: "+result);
 	}
 }
